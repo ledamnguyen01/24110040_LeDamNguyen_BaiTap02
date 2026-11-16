@@ -3,7 +3,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold text-warning" href="${pageContext.request.contextPath}/home">
-            <i class="bi bi-shop"></i> Shopping MVC
+            <i class="bi bi-play-circle-fill"></i> Shopping & Video MVC
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -11,8 +11,16 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="${pageContext.request.contextPath}/home">Trang chủ</a>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/home"><i class="bi bi-house-door"></i> Trang chủ</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/video"><i class="bi bi-collection-play"></i> Danh sách Video (6sp/trang)</a>
+                </li>
+                <c:if test="${sessionScope.account != null}">
+                    <li class="nav-item">
+                        <a class="nav-link text-info" href="${pageContext.request.contextPath}/video?type=my"><i class="bi bi-person-video"></i> Video của tôi</a>
+                    </li>
+                </c:if>
                 <c:if test="${sessionScope.account != null && sessionScope.account.roleid == 1}">
                     <li class="nav-item">
                         <a class="nav-link text-warning fw-semibold" href="${pageContext.request.contextPath}/admin/category/list">

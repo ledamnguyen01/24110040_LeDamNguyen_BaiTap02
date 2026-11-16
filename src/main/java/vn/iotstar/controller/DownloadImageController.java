@@ -12,14 +12,22 @@ import org.apache.commons.io.IOUtils;
 import vn.iotstar.util.Constant;
 
 @SuppressWarnings("serial")
-@WebServlet(urlPatterns = "/image")
+@WebServlet(urlPatterns = {"/image", "/video/stream"})
 public class DownloadImageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String fileName = req.getParameter("fname");
         if (fileName != null && !fileName.trim().isEmpty()) {
             File file = new File(Constant.DIR + File.separator + fileName);
-            resp.setContentType("image/jpeg");
+            if (fileName.toLowerCase().endsWith(".mp4")) {
+                resp.setContentType("video/mp4");
+            } else if (fileName.toLowerCase().endsWith(".png")) {
+                resp.setContentType("image/png");
+            } else if (fileName.toLowerCase().endsWith(".gif")) {
+                resp.setContentType("image/gif");
+            } else {
+                resp.setContentType("image/jpeg");
+            }
             if (file.exists()) {
                 try (FileInputStream fis = new FileInputStream(file)) {
                     IOUtils.copy(fis, resp.getOutputStream());
