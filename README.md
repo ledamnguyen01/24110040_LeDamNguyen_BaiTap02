@@ -12,7 +12,7 @@
 
 ## 1. NỘI DUNG VÀ YÊU CẦU ĐÃ HOÀN THÀNH
 
-### Yêu cầu 1: Cấu hình Sitemesh Decorator 3 với Template Bootstrap (Mốc 16:00 ngày 19/11/2026)
+### Yêu cầu 1: Cấu hình Sitemesh Decorator 3 với Template Bootstrap 
 1. **Thư viện SiteMesh 3:** Sử dụng `org.sitemesh:sitemesh-webfilter:3.3.0` tương thích chuẩn **Jakarta EE 10** và Apache Tomcat 11.
 2. **Cấu hình Filter trong `web.xml`:** Khai báo `ConfigurableSiteMeshFilter` bắt tất cả các đường dẫn `/*`.
 3. **Cấu hình `sitemesh3.xml`:**
@@ -27,7 +27,7 @@
    - `webapp/views/`: Chứa các trang nội dung content.
    - `webapp/WEB-INF/decorators/`: Chứa các trang layout `web.jsp`, `admin.jsp`, `login.jsp`.
 
-### Yêu cầu 2: Thực hiện Validation cho những chức năng có FORM (Mốc 16:00 ngày 19/11/2026)
+### Yêu cầu 2: Thực hiện Validation cho những chức năng có FORM 
 Áp dụng cơ chế **Validation 2 lớp** (Client-side bằng Bootstrap 5 `needs-validation` và Server-side trong Servlet Controller):
 1. **Form Đăng nhập (`/login`):**
    - Client-side: `required`, kiểm tra không để trống tên đăng nhập và mật khẩu, phản hồi trực quan bằng `invalid-feedback`.
