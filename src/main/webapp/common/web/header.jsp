@@ -58,9 +58,18 @@
                         </c:when>
                         <c:otherwise>
                             <li class="nav-item text-white me-3">
-                                <a href="${pageContext.request.contextPath}/profile" class="text-decoration-none text-white">
-                                    <i class="bi bi-person-circle text-info"></i> Xin chào, 
-                                    <strong class="text-info">${sessionScope.account.fullName}</strong>
+                                <a href="${pageContext.request.contextPath}/profile" class="text-decoration-none text-white d-flex align-items-center gap-2">
+                                    <c:choose>
+                                        <c:when test="${sessionScope.account.avatar != null && sessionScope.account.avatar.startsWith('http')}">
+                                            <img src="${sessionScope.account.avatar}" alt="Avatar" class="rounded-circle border border-info" style="width: 30px; height: 30px; object-fit: cover;">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/image?fname=${sessionScope.account.avatar != null ? sessionScope.account.avatar : 'avata.png'}"
+                                                 alt="Avatar" class="rounded-circle border border-info" style="width: 30px; height: 30px; object-fit: cover;"
+                                                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <span>Xin chào, <strong class="text-info">${sessionScope.account.fullName}</strong></span>
                                 </a>
                             </li>
                             <li class="nav-item">

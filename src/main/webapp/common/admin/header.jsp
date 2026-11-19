@@ -8,9 +8,19 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="navbar-nav ms-auto flex-row align-items-center">
-        <span class="text-white-50 small me-3 d-none d-sm-inline">
-            <i class="bi bi-person-check-fill text-success"></i> ${sessionScope.account.fullName} (Admin)
-        </span>
+        <a href="${pageContext.request.contextPath}/profile" class="text-decoration-none text-white-50 small me-3 d-none d-sm-inline-flex align-items-center gap-2">
+            <c:choose>
+                <c:when test="${sessionScope.account.avatar != null && sessionScope.account.avatar.startsWith('http')}">
+                    <img src="${sessionScope.account.avatar}" alt="Avatar" class="rounded-circle border border-success" style="width: 26px; height: 26px; object-fit: cover;">
+                </c:when>
+                <c:otherwise>
+                    <img src="${pageContext.request.contextPath}/image?fname=${sessionScope.account.avatar != null ? sessionScope.account.avatar : 'avata.png'}"
+                         alt="Avatar" class="rounded-circle border border-success" style="width: 26px; height: 26px; object-fit: cover;"
+                         onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+                </c:otherwise>
+            </c:choose>
+            <span>${sessionScope.account.fullName} (Admin)</span>
+        </a>
         <a class="btn btn-sm btn-outline-light me-2" href="${pageContext.request.contextPath}/home">
             <i class="bi bi-box-arrow-up-right"></i> Về Website
         </a>

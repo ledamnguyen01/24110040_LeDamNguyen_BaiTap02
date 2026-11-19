@@ -23,6 +23,7 @@ import vn.iotstar.service.UserService;
 import vn.iotstar.service.impl.UserServiceImpl;
 import vn.iotstar.util.CloudinaryUtil;
 import vn.iotstar.util.Constant;
+import vn.iotstar.util.EmailUtil;
 
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns = { "/profile", "/profile/update", "/profile/verify-email" })
@@ -38,6 +39,16 @@ public class ProfileController extends HttpServlet {
     private static final Pattern PHONE_PATTERN = Pattern.compile("^0[0-9]{9}$");
     private static final Pattern OTP_PATTERN = Pattern.compile("^[0-9]{6}$");
     private static final Set<String> ALLOWED_IMAGE_EXT = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "gif", "webp"));
+
+    private void attachPendingOtpState(HttpServletRequest req, HttpSession session) {
+        String pendingEmail = (String) session.getAttribute("pending_email");
+        if (pendingEmail != null && !pendingEmail.trim().isEmpty()) {
+            req.setAttribute("requireOtp", true);
+            req.setAttribute("pending_email", pendingEmail);
+        }
+        req.setAttribute("cloudinaryReady", CloudinaryUtil.isConfigured());
+        req.setAttribute("smtpReady", EmailUtil.isSmtpConfigured());
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -59,6 +70,7 @@ public class ProfileController extends HttpServlet {
             req.setAttribute("user", sessionUser);
         }
 
+        attachPendingOtpState(req, session);
         req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
     }
 
@@ -85,7 +97,40 @@ public class ProfileController extends HttpServlet {
         }
 
         // ===============================================================
-        // 1. XÁC NHẬN MÃ OTP CẬP NHẬT EMAIL MỚI
+        // 1A. HỦY YÊU CẦU ĐỔI EMAIL
+        // ===============================================================
+        if ("cancel_email_change".equals(action)) {
+            session.removeAttribute("pending_email");
+            req.setAttribute("message", "Đã hủy yêu cầu thay đổi địa chỉ email.");
+            req.setAttribute("user", currentUser);
+            attachPendingOtpState(req, session);
+            req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
+            return;
+        }
+
+        // ===============================================================
+        // 1B. GỬI LẠI MÃ OTP ĐẾN EMAIL MỚI
+        // ===============================================================
+        if ("resend_email_otp".equals(action)) {
+            String pendingEmail = (String) session.getAttribute("pending_email");
+            if (pendingEmail == null || pendingEmail.trim().isEmpty()) {
+                req.setAttribute("alert", "Không tìm thấy yêu cầu đổi email đang chờ xác nhận!");
+            } else {
+                boolean sent = userService.requestUpdateEmail(currentUser.getId(), pendingEmail, currentUser.getFullName());
+                if (sent) {
+                    req.setAttribute("message", "Mã OTP mới đã được gửi lại đến email: " + pendingEmail + " (có hiệu lực trong 10 phút).");
+                } else {
+                    req.setAttribute("alert", "Không thể gửi lại mã OTP đến email " + pendingEmail + ". Vui lòng kiểm tra cấu hình SMTP hoặc thử lại!");
+                }
+            }
+            req.setAttribute("user", currentUser);
+            attachPendingOtpState(req, session);
+            req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
+            return;
+        }
+
+        // ===============================================================
+        // 1C. XÁC NHẬN MÃ OTP CẬP NHẬT EMAIL MỚI
         // ===============================================================
         if ("verify_email_otp".equals(action)) {
             String otp = req.getParameter("otp");
@@ -94,15 +139,15 @@ public class ProfileController extends HttpServlet {
             if (pendingEmail == null || pendingEmail.trim().isEmpty()) {
                 req.setAttribute("alert", "Phiên xác nhận đổi email đã hết hạn! Vui lòng nhập lại email mới để nhận mã OTP.");
                 req.setAttribute("user", currentUser);
+                attachPendingOtpState(req, session);
                 req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
                 return;
             }
 
             if (otp == null || !OTP_PATTERN.matcher(otp.trim()).matches()) {
                 req.setAttribute("alert", "Vui lòng nhập đúng 6 chữ số mã OTP!");
-                req.setAttribute("requireOtp", true);
-                req.setAttribute("pending_email", pendingEmail);
                 req.setAttribute("user", currentUser);
+                attachPendingOtpState(req, session);
                 req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
                 return;
             }
@@ -114,12 +159,11 @@ public class ProfileController extends HttpServlet {
                 session.removeAttribute("pending_email");
                 req.setAttribute("message", "Xác thực OTP thành công! Địa chỉ email đã được cập nhật thành: " + pendingEmail);
             } else {
-                req.setAttribute("alert", "Mã OTP không chính xác hoặc đã hết hạn!");
-                req.setAttribute("requireOtp", true);
-                req.setAttribute("pending_email", pendingEmail);
+                req.setAttribute("alert", "Mã OTP không chính xác hoặc đã hết hạn (10 phút)!");
             }
 
             req.setAttribute("user", currentUser);
+            attachPendingOtpState(req, session);
             req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
             return;
         }
@@ -139,6 +183,7 @@ public class ProfileController extends HttpServlet {
         if (fullname == null || fullname.trim().length() < 2 || fullname.trim().length() > 100) {
             req.setAttribute("alert", "Họ và tên không được để trống và phải từ 2 đến 100 ký tự!");
             req.setAttribute("user", currentUser);
+            attachPendingOtpState(req, session);
             req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
             return;
         }
@@ -146,6 +191,7 @@ public class ProfileController extends HttpServlet {
         if (phone == null || !PHONE_PATTERN.matcher(phone.trim()).matches()) {
             req.setAttribute("alert", "Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 chữ số bắt đầu bằng số 0.");
             req.setAttribute("user", currentUser);
+            attachPendingOtpState(req, session);
             req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
             return;
         }
@@ -153,12 +199,25 @@ public class ProfileController extends HttpServlet {
         if (email == null || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
             req.setAttribute("alert", "Địa chỉ email không đúng định dạng!");
             req.setAttribute("user", currentUser);
+            attachPendingOtpState(req, session);
+            req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
+            return;
+        }
+
+        // Kiểm tra trùng số điện thoại nếu người dùng đổi sang SĐT mới
+        String trimmedPhone = phone.trim();
+        if (!trimmedPhone.equals(currentUser.getPhone()) && userService.checkExistPhone(trimmedPhone)) {
+            req.setAttribute("alert", "Số điện thoại '" + trimmedPhone + "' đã được đăng ký bởi tài khoản khác!");
+            req.setAttribute("user", currentUser);
+            attachPendingOtpState(req, session);
             req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
             return;
         }
 
         // Xử lý upload avatar (Cloudinary qua Multipart + validate định dạng ảnh)
         String avatarUrl = currentUser.getAvatar();
+        boolean hasNewAvatar = false;
+        boolean uploadedToCloud = false;
         try {
             Part part = req.getPart("avatar");
             if (part != null && part.getSize() > 0 && part.getSubmittedFileName() != null && !part.getSubmittedFileName().trim().isEmpty()) {
@@ -170,6 +229,7 @@ public class ProfileController extends HttpServlet {
                 if (!ALLOWED_IMAGE_EXT.contains(ext) || (contentType != null && !contentType.toLowerCase().startsWith("image/"))) {
                     req.setAttribute("alert", "Tệp ảnh đại diện không hợp lệ! Chỉ chấp nhận định dạng JPG, PNG, GIF, WebP.");
                     req.setAttribute("user", currentUser);
+                    attachPendingOtpState(req, session);
                     req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
                     return;
                 }
@@ -186,10 +246,12 @@ public class ProfileController extends HttpServlet {
                     fileBytes = buffer.toByteArray();
                 }
 
+                hasNewAvatar = true;
                 // Upload lên Cloudinary
                 String cloudUrl = CloudinaryUtil.uploadBytes(fileBytes, currentUser.getUserName());
                 if (cloudUrl != null && !cloudUrl.isEmpty()) {
                     avatarUrl = cloudUrl;
+                    uploadedToCloud = true;
                 } else {
                     // Fallback lưu local an toàn từ fileBytes nếu Cloudinary chưa cấu hình / không khả dụng
                     File uploadDir = new File(Constant.DIR);
@@ -205,23 +267,32 @@ public class ProfileController extends HttpServlet {
             e.printStackTrace();
             req.setAttribute("alert", "Lỗi xử lý tệp ảnh tải lên! Vui lòng thử lại với ảnh nhỏ hơn 10MB.");
             req.setAttribute("user", currentUser);
+            attachPendingOtpState(req, session);
             req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
             return;
         }
 
         currentUser.setFullName(fullname.trim());
-        currentUser.setPhone(phone.trim());
+        currentUser.setPhone(trimmedPhone);
         currentUser.setAvatar(avatarUrl);
         userService.updateProfile(currentUser);
+
+        String avatarNote = "";
+        if (hasNewAvatar) {
+            avatarNote = uploadedToCloud
+                ? " Ảnh đại diện đã được tải lên Cloudinary thành công!"
+                : " Ảnh đại diện đã lưu cục bộ (Cloudinary chưa cấu hình key).";
+        }
 
         // Kiểm tra nếu người dùng thay đổi email mới
         String newEmail = email.trim();
         if (!newEmail.equalsIgnoreCase(currentUser.getEmail())) {
             // Kiểm tra xem email mới đã có người khác dùng chưa
             if (userService.checkExistEmail(newEmail)) {
-                req.setAttribute("alert", "Email '" + newEmail + "' đã được sử dụng bởi tài khoản khác! Các thông tin khác đã được lưu.");
+                req.setAttribute("alert", "Email '" + newEmail + "' đã được sử dụng bởi tài khoản khác! Các thông tin khác đã được lưu." + avatarNote);
                 req.setAttribute("user", currentUser);
                 session.setAttribute("account", currentUser);
+                attachPendingOtpState(req, session);
                 req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
                 return;
             }
@@ -230,14 +301,13 @@ public class ProfileController extends HttpServlet {
             boolean sent = userService.requestUpdateEmail(currentUser.getId(), newEmail, currentUser.getFullName());
             if (sent) {
                 session.setAttribute("pending_email", newEmail);
-                req.setAttribute("requireOtp", true);
-                req.setAttribute("pending_email", newEmail);
-                req.setAttribute("message", "Thông tin đã lưu! Mã OTP xác nhận đã được gửi đến email mới: " + newEmail + ". Vui lòng nhập OTP để hoàn tất thay đổi email.");
+                req.setAttribute("message", "Thông tin đã lưu!" + avatarNote + " Mã OTP xác nhận đã được gửi đến email mới: " + newEmail + ". Vui lòng nhập OTP để hoàn tất thay đổi email.");
             } else {
-                req.setAttribute("alert", "Không thể gửi OTP đến email mới. Vui lòng thử lại!");
+                req.setAttribute("alert", "Thông tin hồ sơ đã lưu nhưng không thể gửi email OTP đến " + newEmail + ". Vui lòng kiểm tra cấu hình Gmail SMTP!");
             }
         } else {
-            req.setAttribute("message", "Cập nhật hồ sơ cá nhân thành công!");
+            session.removeAttribute("pending_email");
+            req.setAttribute("message", "Cập nhật hồ sơ cá nhân thành công!" + avatarNote);
         }
 
         // Xóa các attribute tạm để form hiển thị dữ liệu mới từ currentUser
@@ -246,6 +316,7 @@ public class ProfileController extends HttpServlet {
         req.removeAttribute("email_val");
         session.setAttribute("account", currentUser);
         req.setAttribute("user", currentUser);
+        attachPendingOtpState(req, session);
         req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
     }
 }

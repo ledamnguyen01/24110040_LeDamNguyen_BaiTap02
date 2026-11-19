@@ -218,8 +218,7 @@ public class UserServiceImpl implements UserService {
                 + otp + "</div>"
                 + "<p style='margin-top: 15px;'>Mã có hiệu lực trong vòng 10 phút. Nếu bạn không yêu cầu thay đổi, vui lòng bỏ qua email này.</p>"
                 + "</div>";
-        EmailUtil.sendEmail(newEmail, subject, body);
-        return true;
+        return EmailUtil.sendEmail(newEmail, subject, body);
     }
 
     @Override

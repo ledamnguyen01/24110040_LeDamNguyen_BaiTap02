@@ -3,3 +3,5 @@
 /.metadata/
 .DS_Store
 Thumbs.db
+src/main/resources/config-local.properties
+config-local.properties
