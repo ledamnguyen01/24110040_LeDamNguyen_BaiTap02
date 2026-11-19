@@ -10,7 +10,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarMain">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 text-nowrap">
                     <li class="nav-item">
                         <a class="nav-link" href="${pageContext.request.contextPath}/home">
                             <i class="bi bi-house-door"></i> Trang chủ
@@ -18,7 +18,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="${pageContext.request.contextPath}/video">
-                            <i class="bi bi-collection-play"></i> Video (6sp/trang)
+                            <i class="bi bi-collection-play"></i> Video
                         </a>
                     </li>
                     <c:if test="${sessionScope.account != null}">
@@ -29,20 +29,20 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-success" href="${pageContext.request.contextPath}/profile">
-                                <i class="bi bi-person-badge"></i> Hồ sơ cá nhân (Profile)
+                                <i class="bi bi-person-badge"></i> Hồ sơ
                             </a>
                         </li>
                     </c:if>
                     <c:if test="${sessionScope.account != null && sessionScope.account.roleid == 1}">
                         <li class="nav-item">
                             <a class="nav-link text-warning fw-semibold" href="${pageContext.request.contextPath}/admin/category/list">
-                                <i class="bi bi-gear-fill"></i> Quản trị Admin
+                                <i class="bi bi-gear-fill"></i> Quản trị
                             </a>
                         </li>
                     </c:if>
                 </ul>
 
-                <ul class="navbar-nav ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto align-items-center text-nowrap">
                     <c:choose>
                         <c:when test="${sessionScope.account == null}">
                             <li class="nav-item me-2">
