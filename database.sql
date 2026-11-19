@@ -11,16 +11,17 @@ GO
 USE ShoppingServiceMVC;
 GO
 
--- 1. BẢNG USER (Dành cho chức năng Login, Remember Me, Register OTP, Forgot Password OTP)
+-- 1. BẢNG USER (Dành cho chức năng Login, Remember Me, Register OTP, Forgot Password OTP, Profile Cloudinary)
 CREATE TABLE [User] (
     id INT IDENTITY(1,1) PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     fullname NVARCHAR(100) NOT NULL,
+    avatar NVARCHAR(500) NULL DEFAULT 'avata.png',
     phone VARCHAR(20) NULL,
     roleid INT NOT NULL DEFAULT 5, -- 1: Admin, 2: Manager, 5: Khách hàng
-    createdate DATE DEFAULT GETDATE(),
+    createdDate DATE DEFAULT GETDATE(),
     status INT NOT NULL DEFAULT 1, -- 0: Chưa kích hoạt OTP, 1: Đã kích hoạt
     code VARCHAR(10) NULL,         -- Mã OTP (6 số ngẫu nhiên)
     code_time DATETIME NULL        -- Thời điểm phát sinh mã OTP
@@ -53,11 +54,11 @@ GO
 -- DỮ LIỆU MẪU BAN ĐẦU
 -- ===============================================================
 
--- Thêm tài khoản mẫu (Mật khẩu '123456' hoặc hash BCrypt)
-INSERT INTO [User] (username, password, email, fullname, phone, roleid, status) VALUES
-('admin', '$2a$10$w0IomH8zL.6W1O8Q9Q.Vee2f6j/H7o7W9lAepfXG.0cWJ2GjHhH2S', 'admin@gmail.com', N'Quản Trị Viên', '0901234567', 1, 1),
-('user', '$2a$10$w0IomH8zL.6W1O8Q9Q.Vee2f6j/H7o7W9lAepfXG.0cWJ2GjHhH2S', 'user@gmail.com', N'Nguyễn Văn A', '0907654321', 5, 1),
-('damnguyen', '$2a$10$w0IomH8zL.6W1O8Q9Q.Vee2f6j/H7o7W9lAepfXG.0cWJ2GjHhH2S', 'ledamnguyen01@gmail.com', N'Lê Đàm Nguyên', '0912345678', 5, 1);
+-- Thêm tài khoản mẫu (Mật khẩu '123456' đã mã hóa BCrypt chuẩn 60 ký tự)
+INSERT INTO [User] (username, password, email, fullname, avatar, phone, roleid, status) VALUES
+('admin', '$2a$10$/WY3WCHyUo/2xegvznhSc.sshpTCzUjDcx4Zn9lTtnFEgQ5KlB0f2', 'admin@gmail.com', N'Quản Trị Viên', 'admin.png', '0901234567', 1, 1),
+('user', '$2a$10$/WY3WCHyUo/2xegvznhSc.sshpTCzUjDcx4Zn9lTtnFEgQ5KlB0f2', 'user@gmail.com', N'Nguyễn Văn A', 'user.png', '0907654321', 5, 1),
+('damnguyen', '$2a$10$/WY3WCHyUo/2xegvznhSc.sshpTCzUjDcx4Zn9lTtnFEgQ5KlB0f2', 'ledamnguyen01@gmail.com', N'Lê Đàm Nguyên', 'avata.png', '0912345678', 5, 1);
 GO
 
 -- Thêm danh mục mẫu
