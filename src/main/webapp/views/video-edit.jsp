@@ -4,7 +4,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Chỉnh Sửa Video - Shopping & Video MVC</title>
+    <title>Chỉnh Sửa Video</title>
 </head>
 <body>
     <div class="container py-2">

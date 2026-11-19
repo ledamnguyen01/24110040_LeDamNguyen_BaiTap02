@@ -3,6 +3,9 @@ package vn.iotstar.controller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -23,6 +26,7 @@ import vn.iotstar.util.Constant;
                  maxRequestSize = 1024 * 1024 * 5 * 5)
 public class CategoryEditController extends HttpServlet {
     private CategoryService cateService = new CategoryServiceImpl();
+    private static final Set<String> ALLOWED_IMAGE_EXT = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "gif", "webp"));
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,10 +35,12 @@ public class CategoryEditController extends HttpServlet {
             try {
                 int id = Integer.parseInt(idStr);
                 Category category = cateService.get(id);
-                req.setAttribute("category", category);
-                RequestDispatcher dispatcher = req.getRequestDispatcher("/views/admin/edit-category.jsp");
-                dispatcher.include(req, resp);
-                return;
+                if (category != null) {
+                    req.setAttribute("category", category);
+                    RequestDispatcher dispatcher = req.getRequestDispatcher("/views/admin/edit-category.jsp");
+                    dispatcher.include(req, resp);
+                    return;
+                }
             } catch (Exception e) {}
         }
         resp.sendRedirect(req.getContextPath() + "/admin/category/list");
@@ -46,20 +52,30 @@ public class CategoryEditController extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         String idStr = req.getParameter("id");
-        if (idStr == null || idStr.isEmpty()) {
+        if (idStr == null || idStr.trim().isEmpty()) {
             idStr = req.getParameter("cateid");
         }
-        int cateid = Integer.parseInt(idStr);
+        int cateid;
+        try {
+            cateid = Integer.parseInt(idStr.trim());
+        } catch (Exception e) {
+            resp.sendRedirect(req.getContextPath() + "/admin/category/list");
+            return;
+        }
+
+        Category cateold = cateService.get(cateid);
+        if (cateold == null) {
+            resp.sendRedirect(req.getContextPath() + "/admin/category/list");
+            return;
+        }
+
         String categoryname = req.getParameter("catename");
 
         // Server-side Validation
-        if (categoryname == null || categoryname.trim().length() < 2) {
-            req.setAttribute("error", "Tên danh mục không được để trống và phải từ 2 ký tự trở lên!");
-            Category cat = cateService.get(cateid);
-            if (cat != null) {
-                cat.setName(categoryname);
-            }
-            req.setAttribute("category", cat);
+        if (categoryname == null || categoryname.trim().length() < 2 || categoryname.trim().length() > 100) {
+            req.setAttribute("error", "Tên danh mục không được để trống và phải từ 2 đến 100 ký tự!");
+            cateold.setName(categoryname);
+            req.setAttribute("category", cateold);
             req.getRequestDispatcher("/views/admin/edit-category.jsp").include(req, resp);
             return;
         }
@@ -68,8 +84,7 @@ public class CategoryEditController extends HttpServlet {
         category.setId(cateid);
         category.setName(categoryname.trim());
 
-        Category cateold = cateService.get(cateid);
-        String fileold = (cateold != null && cateold.getIcon() != null && !cateold.getIcon().isEmpty()) 
+        String fileold = (cateold.getIcon() != null && !cateold.getIcon().isEmpty())
                 ? cateold.getIcon() : req.getParameter("oldIcon");
         if (fileold == null || fileold.isEmpty()) {
             fileold = "avata.png";
@@ -90,7 +105,14 @@ public class CategoryEditController extends HttpServlet {
             if (part != null && part.getSize() > 0 && part.getSubmittedFileName() != null && !part.getSubmittedFileName().trim().isEmpty()) {
                 String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();
                 int index = filename.lastIndexOf(".");
-                String ext = (index >= 0) ? filename.substring(index + 1) : "png";
+                String ext = (index >= 0) ? filename.substring(index + 1).toLowerCase() : "";
+                if (!ALLOWED_IMAGE_EXT.contains(ext)) {
+                    req.setAttribute("error", "Ảnh đại diện danh mục chỉ hỗ trợ định dạng JPG, PNG, GIF, WebP!");
+                    cateold.setName(categoryname);
+                    req.setAttribute("category", cateold);
+                    req.getRequestDispatcher("/views/admin/edit-category.jsp").include(req, resp);
+                    return;
+                }
                 fname = System.currentTimeMillis() + "." + ext;
                 part.write(uploadPath + File.separator + fname);
                 category.setIcon(fname);

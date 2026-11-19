@@ -4,7 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -30,8 +34,10 @@ import vn.iotstar.util.Constant;
 public class ProfileController extends HttpServlet {
     private UserService userService = new UserServiceImpl();
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^0[0-9]{9}$");
+    private static final Pattern OTP_PATTERN = Pattern.compile("^[0-9]{6}$");
+    private static final Set<String> ALLOWED_IMAGE_EXT = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "gif", "webp"));
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -84,11 +90,15 @@ public class ProfileController extends HttpServlet {
         if ("verify_email_otp".equals(action)) {
             String otp = req.getParameter("otp");
             String pendingEmail = (String) session.getAttribute("pending_email");
-            if (pendingEmail == null) {
-                pendingEmail = req.getParameter("pending_email");
+
+            if (pendingEmail == null || pendingEmail.trim().isEmpty()) {
+                req.setAttribute("alert", "Phiên xác nhận đổi email đã hết hạn! Vui lòng nhập lại email mới để nhận mã OTP.");
+                req.setAttribute("user", currentUser);
+                req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
+                return;
             }
 
-            if (otp == null || otp.trim().length() != 6) {
+            if (otp == null || !OTP_PATTERN.matcher(otp.trim()).matches()) {
                 req.setAttribute("alert", "Vui lòng nhập đúng 6 chữ số mã OTP!");
                 req.setAttribute("requireOtp", true);
                 req.setAttribute("pending_email", pendingEmail);
@@ -121,9 +131,13 @@ public class ProfileController extends HttpServlet {
         String phone = req.getParameter("phone");
         String email = req.getParameter("email");
 
+        req.setAttribute("fullname_val", fullname);
+        req.setAttribute("phone_val", phone);
+        req.setAttribute("email_val", email);
+
         // Server-side Validation
-        if (fullname == null || fullname.trim().length() < 2) {
-            req.setAttribute("alert", "Họ và tên không được để trống và phải từ 2 ký tự trở lên!");
+        if (fullname == null || fullname.trim().length() < 2 || fullname.trim().length() > 100) {
+            req.setAttribute("alert", "Họ và tên không được để trống và phải từ 2 đến 100 ký tự!");
             req.setAttribute("user", currentUser);
             req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
             return;
@@ -143,43 +157,56 @@ public class ProfileController extends HttpServlet {
             return;
         }
 
-        // Xử lý upload avatar (Cloudinary qua Multipart)
+        // Xử lý upload avatar (Cloudinary qua Multipart + validate định dạng ảnh)
         String avatarUrl = currentUser.getAvatar();
         try {
             Part part = req.getPart("avatar");
             if (part != null && part.getSize() > 0 && part.getSubmittedFileName() != null && !part.getSubmittedFileName().trim().isEmpty()) {
                 String submittedName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+                int index = submittedName.lastIndexOf(".");
+                String ext = (index >= 0) ? submittedName.substring(index + 1).toLowerCase() : "";
+                String contentType = part.getContentType();
+
+                if (!ALLOWED_IMAGE_EXT.contains(ext) || (contentType != null && !contentType.toLowerCase().startsWith("image/"))) {
+                    req.setAttribute("alert", "Tệp ảnh đại diện không hợp lệ! Chỉ chấp nhận định dạng JPG, PNG, GIF, WebP.");
+                    req.setAttribute("user", currentUser);
+                    req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
+                    return;
+                }
 
                 // Đọc bytes từ InputStream
-                InputStream is = part.getInputStream();
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                int nRead;
-                byte[] data = new byte[4096];
-                while ((nRead = is.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, nRead);
+                byte[] fileBytes;
+                try (InputStream is = part.getInputStream();
+                     ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                    int nRead;
+                    byte[] data = new byte[4096];
+                    while ((nRead = is.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, nRead);
+                    }
+                    fileBytes = buffer.toByteArray();
                 }
-                buffer.flush();
-                byte[] fileBytes = buffer.toByteArray();
 
                 // Upload lên Cloudinary
                 String cloudUrl = CloudinaryUtil.uploadBytes(fileBytes, currentUser.getUserName());
                 if (cloudUrl != null && !cloudUrl.isEmpty()) {
                     avatarUrl = cloudUrl;
                 } else {
-                    // Fallback lưu local nếu Cloudinary không khả dụng
+                    // Fallback lưu local an toàn từ fileBytes nếu Cloudinary chưa cấu hình / không khả dụng
                     File uploadDir = new File(Constant.DIR);
                     if (!uploadDir.exists()) {
                         uploadDir.mkdirs();
                     }
-                    int index = submittedName.lastIndexOf(".");
-                    String ext = (index >= 0) ? submittedName.substring(index + 1) : "png";
                     String localFileName = "avatar_" + System.currentTimeMillis() + "." + ext;
-                    part.write(Constant.DIR + File.separator + localFileName);
+                    Files.write(Paths.get(Constant.DIR, localFileName), fileBytes);
                     avatarUrl = localFileName;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            req.setAttribute("alert", "Lỗi xử lý tệp ảnh tải lên! Vui lòng thử lại với ảnh nhỏ hơn 10MB.");
+            req.setAttribute("user", currentUser);
+            req.getRequestDispatcher("/views/profile.jsp").include(req, resp);
+            return;
         }
 
         currentUser.setFullName(fullname.trim());
@@ -188,7 +215,6 @@ public class ProfileController extends HttpServlet {
         userService.updateProfile(currentUser);
 
         // Kiểm tra nếu người dùng thay đổi email mới
-        boolean emailChanged = false;
         String newEmail = email.trim();
         if (!newEmail.equalsIgnoreCase(currentUser.getEmail())) {
             // Kiểm tra xem email mới đã có người khác dùng chưa
@@ -207,7 +233,6 @@ public class ProfileController extends HttpServlet {
                 req.setAttribute("requireOtp", true);
                 req.setAttribute("pending_email", newEmail);
                 req.setAttribute("message", "Thông tin đã lưu! Mã OTP xác nhận đã được gửi đến email mới: " + newEmail + ". Vui lòng nhập OTP để hoàn tất thay đổi email.");
-                emailChanged = true;
             } else {
                 req.setAttribute("alert", "Không thể gửi OTP đến email mới. Vui lòng thử lại!");
             }
@@ -215,6 +240,10 @@ public class ProfileController extends HttpServlet {
             req.setAttribute("message", "Cập nhật hồ sơ cá nhân thành công!");
         }
 
+        // Xóa các attribute tạm để form hiển thị dữ liệu mới từ currentUser
+        req.removeAttribute("fullname_val");
+        req.removeAttribute("phone_val");
+        req.removeAttribute("email_val");
         session.setAttribute("account", currentUser);
         req.setAttribute("user", currentUser);
         req.getRequestDispatcher("/views/profile.jsp").include(req, resp);

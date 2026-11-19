@@ -7,7 +7,7 @@
     <title>Quên mật khẩu - Khôi phục tài khoản</title>
 </head>
 <body>
-    <div class="card auth-card shadow-lg" style="max-width: 450px; width: 100%;">
+    <div class="card auth-card shadow-lg mx-auto" style="max-width: 450px; width: 100%;">
         <div class="card-header bg-warning text-dark text-center py-3 rounded-top">
             <h4 class="mb-0 fw-bold"><i class="bi bi-key-fill"></i> QUÊN MẬT KHẨU</h4>
         </div>
@@ -28,7 +28,7 @@
                     <label class="form-label fw-semibold">Địa chỉ Email: <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input type="email" name="email" class="form-control" placeholder="Ví dụ: nguyendm@gmail.com" required autofocus>
+                        <input type="email" name="email" class="form-control" placeholder="Ví dụ: nguyendm@gmail.com" value="${email_val}" required autofocus>
                         <div class="invalid-feedback">Vui lòng nhập địa chỉ email hợp lệ!</div>
                     </div>
                 </div>

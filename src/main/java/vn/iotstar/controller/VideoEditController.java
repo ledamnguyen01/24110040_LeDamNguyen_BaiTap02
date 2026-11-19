@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
+import vn.iotstar.model.User;
 import vn.iotstar.model.Video;
 import vn.iotstar.service.VideoService;
 import vn.iotstar.service.impl.VideoServiceImpl;
@@ -44,15 +45,18 @@ public class VideoEditController extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
+        User currentUser = (User) session.getAttribute("account");
 
         String idStr = req.getParameter("id");
         if (idStr != null) {
             try {
-                int id = Integer.parseInt(idStr);
+                int id = Integer.parseInt(idStr.trim());
                 Video video = videoService.findById(id);
-                req.setAttribute("video", video);
-                req.getRequestDispatcher("/views/video-edit.jsp").include(req, resp);
-                return;
+                if (video != null && (video.getUserId() == currentUser.getId() || currentUser.getRoleid() == 1)) {
+                    req.setAttribute("video", video);
+                    req.getRequestDispatcher("/views/video-edit.jsp").include(req, resp);
+                    return;
+                }
             } catch (Exception e) {}
         }
         resp.sendRedirect(req.getContextPath() + "/video");
@@ -69,10 +73,18 @@ public class VideoEditController extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
+        User currentUser = (User) session.getAttribute("account");
 
-        int videoId = Integer.parseInt(req.getParameter("videoId"));
+        int videoId;
+        try {
+            videoId = Integer.parseInt(req.getParameter("videoId").trim());
+        } catch (Exception e) {
+            resp.sendRedirect(req.getContextPath() + "/video");
+            return;
+        }
+
         Video existingVideo = videoService.findById(videoId);
-        if (existingVideo == null) {
+        if (existingVideo == null || (existingVideo.getUserId() != currentUser.getId() && currentUser.getRoleid() != 1)) {
             resp.sendRedirect(req.getContextPath() + "/video");
             return;
         }
@@ -83,8 +95,8 @@ public class VideoEditController extends HttpServlet {
         boolean active = "1".equals(activeStr) || "on".equals(activeStr) || "true".equalsIgnoreCase(activeStr);
 
         // Server-side Validation
-        if (title == null || title.trim().length() < 3) {
-            req.setAttribute("error", "Tiêu đề video không được để trống và phải có ít nhất 3 ký tự!");
+        if (title == null || title.trim().length() < 3 || title.trim().length() > 255) {
+            req.setAttribute("error", "Tiêu đề video không được để trống và phải từ 3 đến 255 ký tự!");
             existingVideo.setTitle(title);
             existingVideo.setDescription(description);
             req.setAttribute("video", existingVideo);

@@ -7,7 +7,7 @@
     <title>Đăng nhập hệ thống</title>
 </head>
 <body>
-    <div class="card auth-card shadow-lg" style="max-width: 440px; width: 100%;">
+    <div class="card auth-card shadow-lg mx-auto" style="max-width: 440px; width: 100%;">
         <div class="card-header bg-primary text-white text-center py-3 rounded-top">
             <h4 class="mb-0 fw-bold"><i class="bi bi-shield-lock"></i> ĐĂNG NHẬP</h4>
         </div>
@@ -31,7 +31,7 @@
                     <label class="form-label fw-semibold">Tên đăng nhập / Email: <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="text" name="username" class="form-control" placeholder="Nhập tài khoản hoặc email" required autofocus>
+                        <input type="text" name="username" class="form-control" placeholder="Nhập tài khoản hoặc email" value="${username_val}" required autofocus>
                         <div class="invalid-feedback">Vui lòng nhập tên đăng nhập hoặc email!</div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                     <label class="form-label fw-semibold">Mật khẩu: <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <span class="input-group-text"><i class="bi bi-key"></i></span>
-                        <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required minlength="4">
+                        <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required>
                         <div class="invalid-feedback">Vui lòng nhập mật khẩu!</div>
                     </div>
                 </div>

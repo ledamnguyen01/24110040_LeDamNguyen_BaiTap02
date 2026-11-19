@@ -16,7 +16,7 @@ import vn.iotstar.service.impl.UserServiceImpl;
 public class RegisterController extends HttpServlet {
     private UserService service = new UserServiceImpl();
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^0[0-9]{9}$");
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]{3,30}$");
 
@@ -56,8 +56,8 @@ public class RegisterController extends HttpServlet {
             return;
         }
 
-        if (fullname == null || fullname.trim().length() < 2) {
-            req.setAttribute("alert", "Họ và tên không được để trống và phải từ 2 ký tự trở lên!");
+        if (fullname == null || fullname.trim().length() < 2 || fullname.trim().length() > 100) {
+            req.setAttribute("alert", "Họ và tên không được để trống và phải từ 2 đến 100 ký tự!");
             req.getRequestDispatcher("/views/register.jsp").include(req, resp);
             return;
         }
@@ -80,7 +80,7 @@ public class RegisterController extends HttpServlet {
             return;
         }
 
-        if (repassword != null && !password.equals(repassword)) {
+        if (repassword == null || !password.equals(repassword)) {
             req.setAttribute("alert", "Xác nhận mật khẩu không trùng khớp!");
             req.getRequestDispatcher("/views/register.jsp").include(req, resp);
             return;

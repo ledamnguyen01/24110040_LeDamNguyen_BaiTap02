@@ -179,12 +179,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void updateCode(String email, String code) {
-        String sql = "UPDATE [User] SET code = ?, code_time = GETDATE() WHERE email = ?";
+        String sql = "UPDATE [User] SET code = ?, code_time = ? WHERE email = ?";
         try {
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
             ps.setString(1, code);
-            ps.setString(2, email);
+            ps.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
+            ps.setString(3, email);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -195,12 +196,13 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void updateCodeById(int userId, String code) {
-        String sql = "UPDATE [User] SET code = ?, code_time = GETDATE() WHERE id = ?";
+        String sql = "UPDATE [User] SET code = ?, code_time = ? WHERE id = ?";
         try {
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
             ps.setString(1, code);
-            ps.setInt(2, userId);
+            ps.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
+            ps.setInt(3, userId);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

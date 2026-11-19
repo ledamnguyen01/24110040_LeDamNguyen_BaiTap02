@@ -107,8 +107,8 @@
                             <label class="form-label fw-semibold">Họ và tên: <span class="text-danger">*</span></label>
                             <div class="input-group has-validation">
                                 <span class="input-group-text"><i class="bi bi-card-text"></i></span>
-                                <input type="text" name="fullname" class="form-control" value="${user.fullName}" required minlength="2" maxlength="100">
-                                <div class="invalid-feedback">Vui lòng nhập họ và tên (tối thiểu 2 ký tự)!</div>
+                                <input type="text" name="fullname" class="form-control" value="${fullname_val != null ? fullname_val : user.fullName}" required minlength="2" maxlength="100">
+                                <div class="invalid-feedback">Vui lòng nhập họ và tên (từ 2 đến 100 ký tự)!</div>
                             </div>
                         </div>
 
@@ -116,7 +116,7 @@
                             <label class="form-label fw-semibold">Số điện thoại: <span class="text-danger">*</span></label>
                             <div class="input-group has-validation">
                                 <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                                <input type="tel" name="phone" class="form-control" value="${user.phone}" pattern="^0[0-9]{9}$" required>
+                                <input type="tel" name="phone" class="form-control" value="${phone_val != null ? phone_val : user.phone}" pattern="^0[0-9]{9}$" required>
                                 <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ (10 chữ số, bắt đầu bằng số 0)!</div>
                             </div>
                         </div>
@@ -125,7 +125,7 @@
                             <label class="form-label fw-semibold">Địa chỉ Email: <span class="text-danger">*</span></label>
                             <div class="input-group has-validation">
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input type="email" name="email" class="form-control" value="${user.email}" required>
+                                <input type="email" name="email" class="form-control" value="${email_val != null ? email_val : user.email}" required>
                                 <div class="invalid-feedback">Vui lòng nhập email hợp lệ!</div>
                             </div>
                             <div class="form-text text-warning-emphasis">
@@ -136,7 +136,7 @@
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Ảnh đại diện (Upload Cloudinary):</label>
                             <div class="input-group">
-                                <input type="file" name="avatar" class="form-control" accept="image/*" id="avatarInput">
+                                <input type="file" name="avatar" class="form-control" accept=".jpg,.jpeg,.png,.gif,.webp,image/*" id="avatarInput">
                             </div>
                             <div class="form-text">
                                 Hỗ trợ JPG, PNG, GIF, WebP. Ảnh sẽ được tự động tải lên Cloudinary thông qua giao thức multipart.

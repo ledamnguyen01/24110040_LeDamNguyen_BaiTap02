@@ -6,8 +6,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Danh sách Video - Phân trang 6sp/trang</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
         .video-card {
             transition: transform 0.2s, box-shadow 0.2s;
@@ -196,7 +194,5 @@
             </c:otherwise>
         </c:choose>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
     <title>Xác thực kích hoạt tài khoản OTP</title>
 </head>
 <body>
-    <div class="card auth-card shadow-lg" style="max-width: 450px; width: 100%;">
+    <div class="card auth-card shadow-lg mx-auto" style="max-width: 450px; width: 100%;">
         <div class="card-header bg-success text-white text-center py-3 rounded-top">
             <h4 class="mb-0 fw-bold"><i class="bi bi-shield-check"></i> KÍCH HOẠT TÀI KHOẢN</h4>
         </div>

@@ -1,6 +1,7 @@
 package vn.iotstar.controller;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,6 +14,7 @@ import vn.iotstar.service.impl.UserServiceImpl;
 @WebServlet(urlPatterns = "/verify-forgot")
 public class VerifyForgotController extends HttpServlet {
     private UserService service = new UserServiceImpl();
+    private static final Pattern OTP_PATTERN = Pattern.compile("^[0-9]{6}$");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -34,10 +36,24 @@ public class VerifyForgotController extends HttpServlet {
         String newPassword = req.getParameter("newPassword");
         String confirmPassword = req.getParameter("confirmPassword");
 
-        if (email == null || otp == null || newPassword == null || confirmPassword == null ||
+        if (email == null || email.trim().isEmpty() || otp == null || newPassword == null || confirmPassword == null ||
             otp.trim().isEmpty() || newPassword.trim().isEmpty()) {
             req.setAttribute("email", email);
             req.setAttribute("alert", "Vui lòng nhập đầy đủ mã OTP và mật khẩu mới!");
+            req.getRequestDispatcher("/views/verify-forgot.jsp").include(req, resp);
+            return;
+        }
+
+        if (!OTP_PATTERN.matcher(otp.trim()).matches()) {
+            req.setAttribute("email", email);
+            req.setAttribute("alert", "Mã OTP không hợp lệ! Vui lòng nhập đúng 6 chữ số.");
+            req.getRequestDispatcher("/views/verify-forgot.jsp").include(req, resp);
+            return;
+        }
+
+        if (newPassword.length() < 6) {
+            req.setAttribute("email", email);
+            req.setAttribute("alert", "Mật khẩu mới phải có độ dài tối thiểu 6 ký tự!");
             req.getRequestDispatcher("/views/verify-forgot.jsp").include(req, resp);
             return;
         }

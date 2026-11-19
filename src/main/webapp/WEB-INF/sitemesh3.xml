@@ -3,11 +3,18 @@
     <!-- Prefix for decorator JSP files inside WEB-INF -->
     <decorator-prefix>/WEB-INF/decorators/</decorator-prefix>
 
-    <!-- General web layout for user/guest pages with Bootstrap -->
+    <!-- General web layout for user/guest pages with Bootstrap 5 -->
     <mapping path="/*" name="web" decorator="web.jsp" />
 
     <!-- Admin dashboard layout -->
     <mapping path="/admin/*" name="admin" decorator="admin.jsp" />
+
+    <!-- Authentication layout (centered card) -->
+    <mapping path="/login" name="login" decorator="login.jsp" />
+    <mapping path="/register" name="register" decorator="login.jsp" />
+    <mapping path="/forgot-password" name="forgot-password" decorator="login.jsp" />
+    <mapping path="/verify-register" name="verify-register" decorator="login.jsp" />
+    <mapping path="/verify-forgot" name="verify-forgot" decorator="login.jsp" />
 
     <!-- Exclude static resources and raw media streaming from decoration -->
     <mapping path="/api*" exclude="true" />
@@ -15,7 +22,5 @@
     <mapping path="/video/stream*" exclude="true" />
     <mapping path="/templates/*" exclude="true" />
     <mapping path="/uploads/*" exclude="true" />
-    <mapping path="/decorators/*" exclude="true" />
     <mapping path="/common/*" exclude="true" />
-    <mapping path="/commons/*" exclude="true" />
 </sitemesh>

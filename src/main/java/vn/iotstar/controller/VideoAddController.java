@@ -67,8 +67,8 @@ public class VideoAddController extends HttpServlet {
         boolean active = "1".equals(activeStr) || "on".equals(activeStr) || "true".equalsIgnoreCase(activeStr);
 
         // Server-side Validation
-        if (title == null || title.trim().length() < 3) {
-            req.setAttribute("error", "Tiêu đề video không được để trống và phải có ít nhất 3 ký tự!");
+        if (title == null || title.trim().length() < 3 || title.trim().length() > 255) {
+            req.setAttribute("error", "Tiêu đề video không được để trống và phải từ 3 đến 255 ký tự!");
             req.setAttribute("title", title);
             req.setAttribute("description", description);
             req.getRequestDispatcher("/views/video-add.jsp").include(req, resp);

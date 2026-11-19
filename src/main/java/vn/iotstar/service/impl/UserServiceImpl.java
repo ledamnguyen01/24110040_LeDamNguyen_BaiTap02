@@ -121,13 +121,31 @@ public class UserServiceImpl implements UserService {
         return userDao.checkExistPhone(phone);
     }
 
+    private static final long OTP_EXPIRE_MS = 10L * 60L * 1000L; // 10 phút
+
+    private boolean isOtpValid(User user, String otp) {
+        if (user == null || otp == null || user.getCode() == null) {
+            return false;
+        }
+        if (!otp.trim().equals(user.getCode())) {
+            return false;
+        }
+        if (user.getCodeTime() != null) {
+            long elapsed = System.currentTimeMillis() - user.getCodeTime().getTime();
+            if (elapsed > OTP_EXPIRE_MS) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public boolean verifyOtp(String email, String otp) {
         User user = userDao.findByEmail(email);
         if (user == null) {
             user = userDao.get(email);
         }
-        if (user != null && otp != null && otp.trim().equals(user.getCode())) {
+        if (isOtpValid(user, otp)) {
             userDao.activateUser(user.getEmail());
             return true;
         }
@@ -164,7 +182,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean resetPassword(String email, String otp, String newPassword) {
         User user = userDao.findByEmail(email);
-        if (user != null && otp != null && otp.trim().equals(user.getCode())) {
+        if (isOtpValid(user, otp)) {
             String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt(10));
             userDao.updatePassword(email, hashedPassword);
             return true;
@@ -207,7 +225,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean confirmUpdateEmail(int userId, String newEmail, String otp) {
         User user = userDao.findById(userId);
-        if (user != null && otp != null && otp.trim().equals(user.getCode())) {
+        if (isOtpValid(user, otp)) {
             userDao.updateEmail(userId, newEmail);
             return true;
         }

@@ -3,6 +3,9 @@ package vn.iotstar.controller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -23,6 +26,7 @@ import vn.iotstar.util.Constant;
                  maxRequestSize = 1024 * 1024 * 5 * 5)
 public class CategoryAddController extends HttpServlet {
     private CategoryService cateService = new CategoryServiceImpl();
+    private static final Set<String> ALLOWED_IMAGE_EXT = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "gif", "webp"));
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -38,8 +42,8 @@ public class CategoryAddController extends HttpServlet {
         String categoryname = req.getParameter("catename");
 
         // Server-side Validation
-        if (categoryname == null || categoryname.trim().length() < 2) {
-            req.setAttribute("error", "Tên danh mục không được để trống và phải từ 2 ký tự trở lên!");
+        if (categoryname == null || categoryname.trim().length() < 2 || categoryname.trim().length() > 100) {
+            req.setAttribute("error", "Tên danh mục không được để trống và phải từ 2 đến 100 ký tự!");
             req.setAttribute("catename", categoryname);
             req.getRequestDispatcher("/views/admin/add-category.jsp").include(req, resp);
             return;
@@ -63,7 +67,13 @@ public class CategoryAddController extends HttpServlet {
             if (part != null && part.getSize() > 0 && part.getSubmittedFileName() != null && !part.getSubmittedFileName().trim().isEmpty()) {
                 String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();
                 int index = filename.lastIndexOf(".");
-                String ext = (index >= 0) ? filename.substring(index + 1) : "png";
+                String ext = (index >= 0) ? filename.substring(index + 1).toLowerCase() : "";
+                if (!ALLOWED_IMAGE_EXT.contains(ext)) {
+                    req.setAttribute("error", "Ảnh đại diện danh mục chỉ hỗ trợ định dạng JPG, PNG, GIF, WebP!");
+                    req.setAttribute("catename", categoryname);
+                    req.getRequestDispatcher("/views/admin/add-category.jsp").include(req, resp);
+                    return;
+                }
                 fname = System.currentTimeMillis() + "." + ext;
                 part.write(uploadPath + File.separator + fname);
                 category.setIcon(fname);

@@ -7,7 +7,7 @@
     <title>Đặt lại mật khẩu mới</title>
 </head>
 <body>
-    <div class="card auth-card shadow-lg" style="max-width: 450px; width: 100%;">
+    <div class="card auth-card shadow-lg mx-auto" style="max-width: 450px; width: 100%;">
         <div class="card-header bg-danger text-white text-center py-3 rounded-top">
             <h4 class="mb-0 fw-bold"><i class="bi bi-shield-lock-fill"></i> ĐẶT LẠI MẬT KHẨU</h4>
         </div>
@@ -46,7 +46,7 @@
                     <label class="form-label fw-semibold">Mật khẩu mới: <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                        <input type="password" name="newPassword" class="form-control" placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)" required minlength="6">
+                        <input type="password" name="newPassword" id="fpNewPassword" class="form-control" placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)" required minlength="6">
                         <div class="invalid-feedback">Mật khẩu mới phải từ 6 ký tự trở lên!</div>
                     </div>
                 </div>
@@ -55,8 +55,8 @@
                     <label class="form-label fw-semibold">Xác nhận mật khẩu mới: <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <span class="input-group-text"><i class="bi bi-check-circle-fill"></i></span>
-                        <input type="password" name="confirmPassword" class="form-control" placeholder="Nhập lại mật khẩu mới" required minlength="6">
-                        <div class="invalid-feedback">Vui lòng nhập lại chính xác mật khẩu!</div>
+                        <input type="password" name="confirmPassword" id="fpConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu mới" required minlength="6" data-match="fpNewPassword">
+                        <div class="invalid-feedback">Mật khẩu xác nhận phải trùng khớp và từ 6 ký tự trở lên!</div>
                     </div>
                 </div>
 

@@ -56,21 +56,43 @@
     <!-- Bootstrap 5.3.3 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Client-side Bootstrap Form Validation Script -->
+    <!-- Client-side Bootstrap Form Validation + Password Match Script -->
     <script>
         (function () {
             'use strict'
-            var forms = document.querySelectorAll('.needs-validation')
+            function syncMatch(input) {
+                var targetId = input.getAttribute('data-match');
+                if (!targetId) return;
+                var target = document.getElementById(targetId);
+                if (!target) return;
+                if (input.value && input.value !== target.value) {
+                    input.setCustomValidity('Mật khẩu xác nhận không trùng khớp!');
+                } else {
+                    input.setCustomValidity('');
+                }
+            }
+            var matchInputs = document.querySelectorAll('[data-match]');
+            Array.prototype.slice.call(matchInputs).forEach(function (input) {
+                var target = document.getElementById(input.getAttribute('data-match'));
+                input.addEventListener('input', function () { syncMatch(input); });
+                if (target) {
+                    target.addEventListener('input', function () { syncMatch(input); });
+                }
+            });
+
+            var forms = document.querySelectorAll('.needs-validation');
             Array.prototype.slice.call(forms).forEach(function (form) {
                 form.addEventListener('submit', function (event) {
+                    var fields = form.querySelectorAll('[data-match]');
+                    Array.prototype.slice.call(fields).forEach(syncMatch);
                     if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
+                        event.preventDefault();
+                        event.stopPropagation();
                     }
-                    form.classList.add('was-validated')
-                }, false)
-            })
-        })()
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
     </script>
 </body>
 </html>

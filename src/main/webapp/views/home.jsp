@@ -5,9 +5,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trang chủ - Shopping & Video MVC</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <title>Trang chủ</title>
     <style>
         .video-card {
             transition: transform 0.2s, box-shadow 0.2s;
@@ -147,7 +145,5 @@
             </div>
         </c:if>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

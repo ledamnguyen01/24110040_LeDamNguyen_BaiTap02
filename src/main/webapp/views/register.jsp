@@ -7,7 +7,7 @@
     <title>Đăng ký tài khoản mới</title>
 </head>
 <body>
-    <div class="card auth-card shadow-lg" style="max-width: 500px; width: 100%;">
+    <div class="card auth-card shadow-lg mx-auto" style="max-width: 500px; width: 100%;">
         <div class="card-header bg-success text-white text-center py-3 rounded-top">
             <h4 class="mb-0 fw-bold"><i class="bi bi-person-plus"></i> ĐĂNG KÝ TÀI KHOẢN</h4>
         </div>
@@ -73,8 +73,8 @@
                     <label class="form-label fw-semibold">Xác nhận mật khẩu: <span class="text-danger">*</span></label>
                     <div class="input-group has-validation">
                         <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
-                        <input type="password" name="repassword" id="regRePassword" class="form-control" placeholder="Nhập lại mật khẩu trên" required minlength="6">
-                        <div class="invalid-feedback">Vui lòng nhập lại chính xác mật khẩu!</div>
+                        <input type="password" name="repassword" id="regRePassword" class="form-control" placeholder="Nhập lại mật khẩu trên" required minlength="6" data-match="regPassword">
+                        <div class="invalid-feedback">Mật khẩu xác nhận phải trùng khớp và tối thiểu 6 ký tự!</div>
                     </div>
                 </div>
 
