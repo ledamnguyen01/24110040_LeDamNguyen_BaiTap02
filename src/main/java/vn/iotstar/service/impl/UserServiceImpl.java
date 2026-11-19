@@ -51,6 +51,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findById(int id) {
+        return userDao.findById(id);
+    }
+
+    @Override
     public void insert(User user) {
         userDao.insert(user);
     }
@@ -162,6 +167,48 @@ public class UserServiceImpl implements UserService {
         if (user != null && otp != null && otp.trim().equals(user.getCode())) {
             String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt(10));
             userDao.updatePassword(email, hashedPassword);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean updateProfile(User user) {
+        try {
+            userDao.updateProfile(user);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean requestUpdateEmail(int userId, String newEmail, String fullname) {
+        if (userDao.checkExistEmail(newEmail)) {
+            return false; // Email đã tồn tại cho tài khoản khác
+        }
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        userDao.updateCodeById(userId, otp);
+
+        String subject = "Mã OTP xác nhận thay đổi địa chỉ email - ShoppingService MVC";
+        String body = "<div style='font-family: Arial, sans-serif; line-height: 1.6;'>"
+                + "<h2 style='color: #0d6efd;'>XÁC NHẬN CẬP NHẬT EMAIL</h2>"
+                + "<p>Xin chào <b>" + fullname + "</b>,</p>"
+                + "<p>Bạn vừa yêu cầu thay đổi email tài khoản sang địa chỉ này. Mã OTP xác nhận của bạn là:</p>"
+                + "<div style='font-size: 28px; font-weight: bold; color: #0d6efd; background: #e7f1ff; display: inline-block; padding: 10px 24px; border-radius: 8px; letter-spacing: 6px;'>"
+                + otp + "</div>"
+                + "<p style='margin-top: 15px;'>Mã có hiệu lực trong vòng 10 phút. Nếu bạn không yêu cầu thay đổi, vui lòng bỏ qua email này.</p>"
+                + "</div>";
+        EmailUtil.sendEmail(newEmail, subject, body);
+        return true;
+    }
+
+    @Override
+    public boolean confirmUpdateEmail(int userId, String newEmail, String otp) {
+        User user = userDao.findById(userId);
+        if (user != null && otp != null && otp.trim().equals(user.getCode())) {
+            userDao.updateEmail(userId, newEmail);
             return true;
         }
         return false;

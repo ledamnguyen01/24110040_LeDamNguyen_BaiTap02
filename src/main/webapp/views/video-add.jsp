@@ -5,29 +5,34 @@
 <head>
     <meta charset="UTF-8">
     <title>Thêm Video Mới - Upload Multipart</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <style>
-        .form-card { max-width: 680px; margin: 30px auto; border-radius: 12px; }
-    </style>
 </head>
-<body class="bg-light">
-    <jsp:include page="/views/topbar.jsp"></jsp:include>
-
-    <div class="container">
-        <div class="card form-card shadow-sm border-0 bg-white">
+<body>
+    <div class="container py-2">
+        <div class="card shadow-sm border-0 bg-white" style="max-width: 700px; margin: 20px auto;">
             <div class="card-header bg-success text-white py-3 rounded-top">
                 <h4 class="mb-0 fw-bold"><i class="bi bi-cloud-upload"></i> ĐĂNG TẢI VIDEO MỚI (MULTIPART UPLOAD)</h4>
             </div>
             <div class="card-body p-4">
+                <c:if test="${error != null}">
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>${error}</div>
+                    </div>
+                </c:if>
+
                 <p class="text-muted small mb-4">
                     Áp dụng cơ chế <b>@MultipartConfig</b> trong Jakarta Servlet để tải lên hình ảnh poster và tệp tin video.
                 </p>
 
-                <form action="${pageContext.request.contextPath}/video/add" method="post" enctype="multipart/form-data">
+                <form action="${pageContext.request.contextPath}/video/add" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Tiêu đề Video: <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề video" required autofocus>
+                        <div class="input-group has-validation">
+                            <span class="input-group-text"><i class="bi bi-type-h1"></i></span>
+                            <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề video" 
+                                   value="${title}" required minlength="3" maxlength="255" autofocus>
+                            <div class="invalid-feedback">Vui lòng nhập tiêu đề video (tối thiểu 3 ký tự)!</div>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -44,7 +49,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Mô tả nội dung Video:</label>
-                        <textarea name="description" class="form-control" rows="4" placeholder="Nhập thông tin chi tiết về video này..."></textarea>
+                        <textarea name="description" class="form-control" rows="4" placeholder="Nhập thông tin chi tiết về video này...">${description}</textarea>
                     </div>
 
                     <div class="mb-4 form-check form-switch">
@@ -64,7 +69,5 @@
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

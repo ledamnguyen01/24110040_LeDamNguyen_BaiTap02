@@ -16,7 +16,7 @@ public class ForgotPasswordController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/views/forgot-password.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/forgot-password.jsp").include(req, resp);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ForgotPasswordController extends HttpServlet {
         String email = req.getParameter("email");
         if (email == null || email.trim().isEmpty()) {
             req.setAttribute("alert", "Vui lòng nhập địa chỉ email đã đăng ký!");
-            req.getRequestDispatcher("/views/forgot-password.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/forgot-password.jsp").include(req, resp);
             return;
         }
 
@@ -36,10 +36,10 @@ public class ForgotPasswordController extends HttpServlet {
         if (sent) {
             req.setAttribute("email", email.trim());
             req.setAttribute("message", "Mã xác thực OTP đã được gửi đến email " + email + ". Vui lòng nhập mã để tạo mật khẩu mới.");
-            req.getRequestDispatcher("/views/verify-forgot.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/verify-forgot.jsp").include(req, resp);
         } else {
             req.setAttribute("alert", "Địa chỉ email không tồn tại trong hệ thống!");
-            req.getRequestDispatcher("/views/forgot-password.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/forgot-password.jsp").include(req, resp);
         }
     }
 }

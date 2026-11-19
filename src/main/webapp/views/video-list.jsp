@@ -60,8 +60,6 @@
     </style>
 </head>
 <body class="bg-light">
-    <jsp:include page="/views/topbar.jsp"></jsp:include>
-
     <div class="container py-3">
         <!-- Tiêu đề trang & Nút điều hướng -->
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 p-3 bg-white rounded shadow-sm border">

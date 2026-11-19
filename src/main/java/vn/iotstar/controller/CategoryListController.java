@@ -22,6 +22,6 @@ public class CategoryListController extends HttpServlet {
         List<Category> cateList = cateService.getAll();
         req.setAttribute("cateList", cateList);
         RequestDispatcher dispatcher = req.getRequestDispatcher("/views/admin/list-category.jsp");
-        dispatcher.forward(req, resp);
+        dispatcher.include(req, resp);
     }
 }

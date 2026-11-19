@@ -20,7 +20,7 @@ public class VerifyRegisterController extends HttpServlet {
         if (email != null) {
             req.setAttribute("email", email);
         }
-        req.getRequestDispatcher("/views/verify-register.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/verify-register.jsp").include(req, resp);
     }
 
     @Override
@@ -35,18 +35,18 @@ public class VerifyRegisterController extends HttpServlet {
         if (email == null || otp == null || otp.trim().isEmpty()) {
             req.setAttribute("email", email);
             req.setAttribute("alert", "Vui lòng nhập mã OTP xác thực!");
-            req.getRequestDispatcher("/views/verify-register.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/verify-register.jsp").include(req, resp);
             return;
         }
 
         boolean isVerified = service.verifyOtp(email, otp.trim());
         if (isVerified) {
             req.setAttribute("message", "Kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.");
-            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/login.jsp").include(req, resp);
         } else {
             req.setAttribute("email", email);
             req.setAttribute("alert", "Mã xác thực OTP không đúng hoặc đã hết hạn!");
-            req.getRequestDispatcher("/views/verify-register.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/verify-register.jsp").include(req, resp);
         }
     }
 }

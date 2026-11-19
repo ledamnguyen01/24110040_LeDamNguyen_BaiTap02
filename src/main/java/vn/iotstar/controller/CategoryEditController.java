@@ -28,14 +28,16 @@ public class CategoryEditController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String idStr = req.getParameter("id");
         if (idStr != null) {
-            int id = Integer.parseInt(idStr);
-            Category category = cateService.get(id);
-            req.setAttribute("category", category);
-            RequestDispatcher dispatcher = req.getRequestDispatcher("/views/admin/edit-category.jsp");
-            dispatcher.forward(req, resp);
-        } else {
-            resp.sendRedirect(req.getContextPath() + "/admin/category/list");
+            try {
+                int id = Integer.parseInt(idStr);
+                Category category = cateService.get(id);
+                req.setAttribute("category", category);
+                RequestDispatcher dispatcher = req.getRequestDispatcher("/views/admin/edit-category.jsp");
+                dispatcher.include(req, resp);
+                return;
+            } catch (Exception e) {}
         }
+        resp.sendRedirect(req.getContextPath() + "/admin/category/list");
     }
 
     @Override
@@ -50,9 +52,21 @@ public class CategoryEditController extends HttpServlet {
         int cateid = Integer.parseInt(idStr);
         String categoryname = req.getParameter("catename");
 
+        // Server-side Validation
+        if (categoryname == null || categoryname.trim().length() < 2) {
+            req.setAttribute("error", "Tên danh mục không được để trống và phải từ 2 ký tự trở lên!");
+            Category cat = cateService.get(cateid);
+            if (cat != null) {
+                cat.setName(categoryname);
+            }
+            req.setAttribute("category", cat);
+            req.getRequestDispatcher("/views/admin/edit-category.jsp").include(req, resp);
+            return;
+        }
+
         Category category = new Category();
         category.setId(cateid);
-        category.setName(categoryname);
+        category.setName(categoryname.trim());
 
         Category cateold = cateService.get(cateid);
         String fileold = (cateold != null && cateold.getIcon() != null && !cateold.getIcon().isEmpty()) 
@@ -67,6 +81,7 @@ public class CategoryEditController extends HttpServlet {
             uploadDir.mkdirs();
         }
 
+        String fname = fileold;
         try {
             Part part = req.getPart("icon");
             if (part == null || part.getSize() == 0 || part.getSubmittedFileName() == null || part.getSubmittedFileName().trim().isEmpty()) {
@@ -76,7 +91,7 @@ public class CategoryEditController extends HttpServlet {
                 String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();
                 int index = filename.lastIndexOf(".");
                 String ext = (index >= 0) ? filename.substring(index + 1) : "png";
-                String fname = System.currentTimeMillis() + "." + ext;
+                fname = System.currentTimeMillis() + "." + ext;
                 part.write(uploadPath + File.separator + fname);
                 category.setIcon(fname);
             } else {

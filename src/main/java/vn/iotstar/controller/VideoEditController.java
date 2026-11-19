@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
-import vn.iotstar.model.User;
 import vn.iotstar.model.Video;
 import vn.iotstar.service.VideoService;
 import vn.iotstar.service.impl.VideoServiceImpl;
@@ -48,13 +47,15 @@ public class VideoEditController extends HttpServlet {
 
         String idStr = req.getParameter("id");
         if (idStr != null) {
-            int id = Integer.parseInt(idStr);
-            Video video = videoService.findById(id);
-            req.setAttribute("video", video);
-            req.getRequestDispatcher("/views/video-edit.jsp").forward(req, resp);
-        } else {
-            resp.sendRedirect(req.getContextPath() + "/video");
+            try {
+                int id = Integer.parseInt(idStr);
+                Video video = videoService.findById(id);
+                req.setAttribute("video", video);
+                req.getRequestDispatcher("/views/video-edit.jsp").include(req, resp);
+                return;
+            } catch (Exception e) {}
         }
+        resp.sendRedirect(req.getContextPath() + "/video");
     }
 
     @Override
@@ -81,7 +82,17 @@ public class VideoEditController extends HttpServlet {
         String activeStr = req.getParameter("active");
         boolean active = "1".equals(activeStr) || "on".equals(activeStr) || "true".equalsIgnoreCase(activeStr);
 
-        existingVideo.setTitle(title);
+        // Server-side Validation
+        if (title == null || title.trim().length() < 3) {
+            req.setAttribute("error", "Tiêu đề video không được để trống và phải có ít nhất 3 ký tự!");
+            existingVideo.setTitle(title);
+            existingVideo.setDescription(description);
+            req.setAttribute("video", existingVideo);
+            req.getRequestDispatcher("/views/video-edit.jsp").include(req, resp);
+            return;
+        }
+
+        existingVideo.setTitle(title.trim());
         existingVideo.setDescription(description);
         existingVideo.setActive(active);
 

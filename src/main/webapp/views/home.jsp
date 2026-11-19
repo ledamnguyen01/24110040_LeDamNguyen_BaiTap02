@@ -60,8 +60,6 @@
     </style>
 </head>
 <body class="bg-light">
-    <jsp:include page="/views/topbar.jsp"></jsp:include>
-
     <div class="container py-3">
         <!-- Banner chào mừng -->
         <div class="p-4 mb-4 bg-white rounded-3 shadow-sm border">
@@ -71,7 +69,7 @@
                         <i class="bi bi-play-btn-fill text-danger"></i> Hệ Thống Video & Shopping MVC
                     </h2>
                     <p class="text-muted mb-0">
-                        Bài tập 02 - Lập trình Web HCMUTE (ThS. Nguyễn Hữu Trung) - Kiến trúc MVC 3 tầng & Quản lý Video.
+                        Bài tập 04 - Lập trình Web HCMUTE (ThS. Nguyễn Hữu Trung) - Sitemesh Decorator 3, Form Validation, User Profile &amp; Cloudinary.
                     </p>
                 </div>
                 <div>

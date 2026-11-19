@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>vn.iotstar</groupId>
-	<artifactId>BaiTapWeb_MVC_3Tier</artifactId>
+	<artifactId>BaiTap04_SiteMesh_Validation</artifactId>
 	<version>1.0.0</version>
 	<packaging>war</packaging>
-	<name>24110040_LeDamNguyen_BaiTapWeb_MVC_3Tier</name>
-	<description>Bài tập Lập trình Web MVC 3 tầng - ThS. Nguyễn Hữu Trung - HCMUTE</description>
+	<name>24110040_LeDamNguyen_BaiTap04</name>
+	<description>Bài tập 04 Lập trình Web - Sitemesh Decorator 3, Form Validation, Profile User - ThS. Nguyễn Hữu Trung</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -76,10 +76,24 @@
 			<artifactId>angus-mail</artifactId>
 			<version>2.0.3</version>
 		</dependency>
+
+		<!-- Layout Master: Sitemesh 3 for Jakarta EE 10 -->
+		<dependency>
+			<groupId>org.sitemesh</groupId>
+			<artifactId>sitemesh-webfilter</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+
+		<!-- Cloudinary for image upload -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.39.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
-		<finalName>BaiTapWeb_MVC_3Tier</finalName>
+		<finalName>BaiTap04_SiteMesh_Validation</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

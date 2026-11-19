@@ -45,7 +45,7 @@ public class VideoAddController extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-        req.getRequestDispatcher("/views/video-add.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/video-add.jsp").include(req, resp);
     }
 
     @Override
@@ -65,6 +65,15 @@ public class VideoAddController extends HttpServlet {
         String description = req.getParameter("description");
         String activeStr = req.getParameter("active");
         boolean active = "1".equals(activeStr) || "on".equals(activeStr) || "true".equalsIgnoreCase(activeStr);
+
+        // Server-side Validation
+        if (title == null || title.trim().length() < 3) {
+            req.setAttribute("error", "Tiêu đề video không được để trống và phải có ít nhất 3 ký tự!");
+            req.setAttribute("title", title);
+            req.setAttribute("description", description);
+            req.getRequestDispatcher("/views/video-add.jsp").include(req, resp);
+            return;
+        }
 
         // Dam bao thu muc upload ton tai
         File uploadDir = new File(Constant.DIR);
@@ -98,7 +107,7 @@ public class VideoAddController extends HttpServlet {
             e.printStackTrace();
         }
 
-        Video newVideo = new Video(title, posterFileName, videoFileName, description, active, user.getId());
+        Video newVideo = new Video(title.trim(), posterFileName, videoFileName, description, active, user.getId());
         videoService.insert(newVideo);
 
         resp.sendRedirect(req.getContextPath() + "/video?type=my");

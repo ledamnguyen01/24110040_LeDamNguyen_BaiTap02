@@ -74,6 +74,25 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public User findById(int id) {
+        String sql = "SELECT * FROM [User] WHERE id = ?";
+        try {
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return extractUser(rs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+        return null;
+    }
+
+    @Override
     public void insert(User user) {
         String sql = "INSERT INTO [User](email, username, fullname, password, avatar, roleid, phone, createddate, status, code, code_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
@@ -175,6 +194,22 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public void updateCodeById(int userId, String code) {
+        String sql = "UPDATE [User] SET code = ?, code_time = GETDATE() WHERE id = ?";
+        try {
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, code);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    @Override
     public void activateUser(String email) {
         String sql = "UPDATE [User] SET status = 1, code = NULL WHERE email = ?";
         try {
@@ -197,6 +232,40 @@ public class UserDaoImpl implements UserDao {
             ps = conn.prepareStatement(sql);
             ps.setString(1, newPassword);
             ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    @Override
+    public void updateProfile(User user) {
+        String sql = "UPDATE [User] SET fullname = ?, phone = ?, avatar = ? WHERE id = ?";
+        try {
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, user.getFullName());
+            ps.setString(2, user.getPhone());
+            ps.setString(3, user.getAvatar());
+            ps.setInt(4, user.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    @Override
+    public void updateEmail(int userId, String newEmail) {
+        String sql = "UPDATE [User] SET email = ?, code = NULL WHERE id = ?";
+        try {
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, newEmail);
+            ps.setInt(2, userId);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

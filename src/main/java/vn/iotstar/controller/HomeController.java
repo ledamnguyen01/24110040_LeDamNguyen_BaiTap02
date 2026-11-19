@@ -21,6 +21,6 @@ public class HomeController extends HttpServlet {
         // Lấy 10 video mới nhất hiển thị lên trang chủ
         List<Video> top10Videos = videoService.findTop10Recent();
         req.setAttribute("top10Videos", top10Videos);
-        req.getRequestDispatcher("/views/home.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/home.jsp").include(req, resp);
     }
 }

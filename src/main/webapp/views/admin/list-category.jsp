@@ -12,8 +12,6 @@
     </style>
 </head>
 <body class="bg-light">
-    <jsp:include page="/views/topbar.jsp"></jsp:include>
-
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>

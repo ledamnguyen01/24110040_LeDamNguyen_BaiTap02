@@ -40,7 +40,7 @@ public class VideoDetailController extends HttpServlet {
 
             req.setAttribute("video", video);
             req.setAttribute("relatedVideos", relatedVideos);
-            req.getRequestDispatcher("/views/video-detail.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/video-detail.jsp").include(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
             resp.sendRedirect(req.getContextPath() + "/video");

@@ -64,6 +64,6 @@ public class VideoListController extends HttpServlet {
         req.setAttribute("totalVideos", totalVideos);
         req.setAttribute("filterType", type);
 
-        req.getRequestDispatcher("/views/video-list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/video-list.jsp").include(req, resp);
     }
 }

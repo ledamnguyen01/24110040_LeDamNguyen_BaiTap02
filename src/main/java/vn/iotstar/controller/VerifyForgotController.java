@@ -20,7 +20,7 @@ public class VerifyForgotController extends HttpServlet {
         if (email != null) {
             req.setAttribute("email", email);
         }
-        req.getRequestDispatcher("/views/verify-forgot.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/verify-forgot.jsp").include(req, resp);
     }
 
     @Override
@@ -38,25 +38,25 @@ public class VerifyForgotController extends HttpServlet {
             otp.trim().isEmpty() || newPassword.trim().isEmpty()) {
             req.setAttribute("email", email);
             req.setAttribute("alert", "Vui lòng nhập đầy đủ mã OTP và mật khẩu mới!");
-            req.getRequestDispatcher("/views/verify-forgot.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/verify-forgot.jsp").include(req, resp);
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
             req.setAttribute("email", email);
             req.setAttribute("alert", "Mật khẩu xác nhận không khớp với mật khẩu mới!");
-            req.getRequestDispatcher("/views/verify-forgot.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/verify-forgot.jsp").include(req, resp);
             return;
         }
 
         boolean reset = service.resetPassword(email.trim(), otp.trim(), newPassword);
         if (reset) {
             req.setAttribute("message", "Đặt lại mật khẩu thành công! Vui lòng đăng nhập với mật khẩu mới.");
-            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/login.jsp").include(req, resp);
         } else {
             req.setAttribute("email", email);
             req.setAttribute("alert", "Mã xác thực OTP không đúng hoặc đã hết hạn!");
-            req.getRequestDispatcher("/views/verify-forgot.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/verify-forgot.jsp").include(req, resp);
         }
     }
 }

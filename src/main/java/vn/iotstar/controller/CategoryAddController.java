@@ -27,7 +27,7 @@ public class CategoryAddController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         RequestDispatcher dispatcher = req.getRequestDispatcher("/views/admin/add-category.jsp");
-        dispatcher.forward(req, resp);
+        dispatcher.include(req, resp);
     }
 
     @Override
@@ -35,9 +35,18 @@ public class CategoryAddController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
 
-        Category category = new Category();
         String categoryname = req.getParameter("catename");
-        category.setName(categoryname);
+
+        // Server-side Validation
+        if (categoryname == null || categoryname.trim().length() < 2) {
+            req.setAttribute("error", "Tên danh mục không được để trống và phải từ 2 ký tự trở lên!");
+            req.setAttribute("catename", categoryname);
+            req.getRequestDispatcher("/views/admin/add-category.jsp").include(req, resp);
+            return;
+        }
+
+        Category category = new Category();
+        category.setName(categoryname.trim());
 
         String uploadPath = Constant.DIR;
         File uploadDir = new File(uploadPath);

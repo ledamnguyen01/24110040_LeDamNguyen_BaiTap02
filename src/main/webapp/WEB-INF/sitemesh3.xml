@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+    <!-- Prefix for decorator JSP files inside WEB-INF -->
+    <decorator-prefix>/WEB-INF/decorators/</decorator-prefix>
+
+    <!-- General web layout for user/guest pages with Bootstrap -->
+    <mapping path="/*" name="web" decorator="web.jsp" />
+
+    <!-- Admin dashboard layout -->
+    <mapping path="/admin/*" name="admin" decorator="admin.jsp" />
+
+    <!-- Exclude static resources and raw media streaming from decoration -->
+    <mapping path="/api*" exclude="true" />
+    <mapping path="/image*" exclude="true" />
+    <mapping path="/video/stream*" exclude="true" />
+    <mapping path="/templates/*" exclude="true" />
+    <mapping path="/uploads/*" exclude="true" />
+    <mapping path="/decorators/*" exclude="true" />
+    <mapping path="/common/*" exclude="true" />
+    <mapping path="/commons/*" exclude="true" />
+</sitemesh>

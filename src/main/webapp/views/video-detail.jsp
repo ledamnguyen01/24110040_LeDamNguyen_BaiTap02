@@ -50,8 +50,6 @@
     </style>
 </head>
 <body class="bg-light">
-    <jsp:include page="/views/topbar.jsp"></jsp:include>
-
     <div class="container py-3">
         <div class="row g-4">
             <!-- CỘT TRÁI: TRÌNH PHÁT VIDEO & THÔNG TIN CHI TIẾT -->
